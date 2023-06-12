@@ -133,7 +133,7 @@ def train_best_model(
 @flow
 def send_email_notification_flow():
     flow_run_name = runtime.flow_run.name
-    email_credentials_block = EmailServerCredentials.load("my-prefect-email") # created using UI
+    email_credentials_block = EmailServerCredentials.load("email_server_creds") # created using UI
     email_send_message(
         email_server_credentials=email_credentials_block,
         subject=f"Flow run {flow_run_name!r} success",
