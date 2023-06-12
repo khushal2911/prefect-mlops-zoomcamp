@@ -12,6 +12,7 @@ from prefect import flow, task
 from prefect_aws import S3Bucket
 from prefect.artifacts import create_markdown_artifact
 from datetime import date
+from prefect_email import EmailServerCredentials, email_send_message
 
 
 @task(retries=3, retry_delay_seconds=2)
@@ -129,6 +130,10 @@ def train_best_model(
 
     return None
 
+@task
+def send_email_notification():
+    email_credentials_block = EmailServerCredentials.load("my-prefect-email")
+
 
 @flow
 def main_flow_s3(
@@ -148,6 +153,7 @@ def main_flow_s3(
 
     df_train = read_data(train_path)
     df_val = read_data(val_path)
+
 
     # Transform
     X_train, X_val, y_train, y_val, dv = add_features(df_train, df_val)
