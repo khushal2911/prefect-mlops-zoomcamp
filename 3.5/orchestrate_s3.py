@@ -13,7 +13,7 @@ from prefect_aws import S3Bucket
 from prefect.artifacts import create_markdown_artifact
 from datetime import date
 from prefect_email import EmailServerCredentials, email_send_message
-
+from prefect import runtime
 
 @task(retries=3, retry_delay_seconds=2)
 def read_data(filename: str) -> pd.DataFrame:
@@ -130,9 +130,16 @@ def train_best_model(
 
     return None
 
-@task
-def send_email_notification():
-    email_credentials_block = EmailServerCredentials.load("my-prefect-email")
+@flow
+def send_email_notification_flow():
+    flow_run_name = runtime.flow_run.name
+    email_credentials_block = EmailServerCredentials.load("my-prefect-email") # created using UI
+    email_send_message(
+        email_server_credentials=email_credentials_block,
+        subject=f"Flow run {flow_run_name!r} success",
+        msg=f"Flow run {flow_run_name!r} succeeded and notified through email.",
+        email_to=["allkhush92@gmail.com"],
+    )
 
 
 @flow
@@ -151,6 +158,8 @@ def main_flow_s3(
     # it's the name of the bucket-block created using 'create_s3_bucket_block.py'
     s3_bucket_block.download_folder_to_path(from_folder="data", to_folder="data")
 
+    #example_flow()
+
     df_train = read_data(train_path)
     df_val = read_data(val_path)
 
@@ -160,7 +169,7 @@ def main_flow_s3(
 
     # Train
     train_best_model(X_train, X_val, y_train, y_val, dv)
-
+    send_email_notification_flow()
 
 if __name__ == "__main__":
     main_flow_s3()
