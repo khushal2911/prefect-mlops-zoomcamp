@@ -158,8 +158,6 @@ def main_flow_s3(
     # it's the name of the bucket-block created using 'create_s3_bucket_block.py'
     s3_bucket_block.download_folder_to_path(from_folder="data", to_folder="data")
 
-    #example_flow()
-
     df_train = read_data(train_path)
     df_val = read_data(val_path)
 
