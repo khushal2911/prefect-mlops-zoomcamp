@@ -132,17 +132,18 @@ def train_best_model(
 
 @flow
 def main_flow_s3(
-    train_path: str = "./data/green_tripdata_2021-01.parquet",
-    val_path: str = "./data/green_tripdata_2021-02.parquet",
+    train_path: str = "./data/green_tripdata_2023-02.parquet",
+    val_path: str = "./data/green_tripdata_2023-03.parquet",
 ) -> None:
     """The main training pipeline"""
 
     # MLflow settings
     mlflow.set_tracking_uri("sqlite:///mlflow.db")
-    mlflow.set_experiment("nyc-taxi-experiment")
+    mlflow.set_experiment("nyc-taxi-experiment-prefect")
 
     # Load
-    s3_bucket_block = S3Bucket.load("s3-bucket-block")
+    s3_bucket_block = S3Bucket.load("s3-bucket-example") 
+    # it's the name of the bucket-block created using 'create_s3_bucket_block.py'
     s3_bucket_block.download_folder_to_path(from_folder="data", to_folder="data")
 
     df_train = read_data(train_path)
